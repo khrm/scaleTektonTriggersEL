@@ -1,0 +1,17 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  generateName: trigger
+  namespace: foo
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: "filter"
+          value: "header.match('test', '1')"
+  serviceAccountName: foo-trigger-sa
+  bindings:
+  - ref: pipeline-binding
+  template:
+    ref: pipeline-template

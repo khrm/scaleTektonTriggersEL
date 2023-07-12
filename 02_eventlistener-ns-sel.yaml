@@ -1,0 +1,33 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: namespace-selector-listener
+spec:
+  serviceAccountName: el-sa
+  namespaceSelector:
+    matchNames:
+    - default
+    - foo
+  resources:
+    customResource:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      spec:
+        template:
+          metadata:
+            annotations:
+              # Knative concurrency-based autoscaling (default).
+              # Disable scale to zero with a min scale of 1.
+              autoscaling.knative.dev/min-scale: "1"
+              # Limit scaling to 100 pods.
+              autoscaling.knative.dev/max-scale: "100"
+          spec:
+            serviceAccountName: el-sa
+            containers:
+            - resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
